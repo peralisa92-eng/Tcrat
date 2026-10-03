@@ -237,7 +237,7 @@ export const RepoExplorer: React.FC = () => {
           <div>git commit -m &quot;feat: inicializacao do gguf-vision-studio com suporte dual t4&quot;</div>
           <div className="text-slate-500 mt-2"># 3. Vincule ao seu repositório no GitHub e envie</div>
           <div>git branch -M main</div>
-          <div>git remote add origin https://github.com/SEU_USUARIO/gguf-vision-studio.git</div>
+          <div>git remote add origin https://github.com/peralisa92-eng/Tcrat.git</div>
           <div>git push -u origin main</div>
         </div>
       </div>

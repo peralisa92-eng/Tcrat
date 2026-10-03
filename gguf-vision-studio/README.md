@@ -1,6 +1,7 @@
 # 👁️ GGUF Vision Studio
 
 > **Suíte completa para inferência de modelos de Visão Multimodal GGUF com `mmproj-F16.gguf` acelerada em 2x GPU NVIDIA T4 no Kaggle e exposta via Cloudflare Tunnel para uso com KoboldCPP / OpenAI API / SillyTavern e Web UI.**
+> Repositório oficial: [https://github.com/peralisa92-eng/Tcrat](https://github.com/peralisa92-eng/Tcrat)
 
 ---
 
@@ -49,22 +50,13 @@ Gerando instantaneamente uma URL pública protegida por SSL:
 
 ---
 
-## 🔌 Endpoints Compatíveis
+## ⚡ Como Subir para o GitHub (Repositório Tcrat)
 
-- **OpenAI Multimodal API:** `POST https://sua-url.trycloudflare.com/v1/chat/completions`  
-  (Suporta blocos `image_url` em Base64 ou URL HTTP).
-- **KoboldCPP API:** `POST https://sua-url.trycloudflare.com/completion`
-- **Modelos Carregados:** `GET https://sua-url.trycloudflare.com/v1/models`
-- **Health Check:** `GET https://sua-url.trycloudflare.com/health`
-
----
-
-## ⚡ Como Rodar no Kaggle
-
-1. No Kaggle, crie um novo **Notebook**.
-2. No painel à direita:
-   - **Accelerator:** Escolha **GPU T4 x2**.
-   - **Internet:** Ative **Internet ON**.
-3. Importe o arquivo `kaggle_notebook.ipynb` deste repositório.
-4. Execute todas as células ("Run All").
-5. Copie a URL do Cloudflare exibida no log e use no SillyTavern, na interface web ou em seus scripts Python!
+```bash
+git init
+git add .
+git commit -m "feat: inicialização do gguf-vision-studio com suporte dual t4"
+git branch -M main
+git remote add origin https://github.com/peralisa92-eng/Tcrat.git
+git push -u origin main
+```

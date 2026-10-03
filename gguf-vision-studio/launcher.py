@@ -2,6 +2,7 @@
 """
 GGUF Vision Studio - Dual GPU Launcher with Cloudflare Tunnel
 Automatic process orchestrator for Kaggle 2x NVIDIA T4.
+Repository: https://github.com/peralisa92-eng/Tcrat.git
 """
 
 import os
@@ -10,6 +11,7 @@ import time
 import re
 import subprocess
 import signal
+import shutil
 import argparse
 
 MODEL_URL = "https://huggingface.co/unsloth/gemma-4-E4B-it-GGUF/resolve/main/gemma-4-E4B-it-UD-Q4_K_XL.gguf"
@@ -48,6 +50,19 @@ def download_models():
     else:
         print(f"[✓] Projetor mmproj encontrado: {MMPROJ_FILE}")
 
+def find_llama_server():
+    candidates = [
+        "./llama-server",
+        shutil.which("llama-server"),
+        os.path.expanduser("~/.local/bin/llama-server"),
+        "/usr/local/bin/llama-server",
+        "./llama.cpp/build/bin/llama-server"
+    ]
+    for c in candidates:
+        if c and os.path.exists(c) and os.access(c, os.X_OK):
+            return c
+    return None
+
 def main():
     parser = argparse.ArgumentParser(description="GGUF Vision Studio Dual-T4 Server")
     parser.add_argument("--port", type=int, default=8080, help="Porta local HTTP")
@@ -62,18 +77,28 @@ def main():
     subprocess.run(f"fuser -k {args.port}/tcp 2>/dev/null", shell=True)
     subprocess.run("killall cloudflared 2>/dev/null", shell=True)
 
-    llama_bin = "./llama-server"
-    if not os.path.exists(llama_bin):
-        if os.path.exists("llama.cpp/build/bin/llama-server"):
-            llama_bin = "llama.cpp/build/bin/llama-server"
-        else:
-            print("[!] Binário llama-server não encontrado localmente! Tentando compilar...")
-            run_cmd("git clone --depth 1 https://github.com/ggerganov/llama.cpp.git")
-            run_cmd("cmake -B llama.cpp/build -S llama.cpp -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES='75'")
-            run_cmd("cmake --build llama.cpp/build --config Release -j$(nproc) --target llama-server")
-            llama_bin = "llama.cpp/build/bin/llama-server"
+    llama_bin = find_llama_server()
+    if not llama_bin:
+        print("[*] Instalando llama-server oficial pré-compilado para CUDA...")
+        run_cmd("curl -sSfL https://raw.githubusercontent.com/ggml-org/llama.cpp/master/scripts/install.sh | bash", check=False)
+        llama_bin = find_llama_server()
 
-    print(f"[4/5] Inicializando llama-server com Dual T4 (split: {args.split})...")
+    if not llama_bin:
+        print("[!] Compilando llama-server com CUDA (sm_75 para Dual T4)...")
+        if not os.path.exists("llama.cpp"):
+            run_cmd("git clone --depth 1 https://github.com/ggml-org/llama.cpp.git")
+        run_cmd("cmake -B llama.cpp/build -S llama.cpp -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES='75' -DCMAKE_BUILD_TYPE=Release")
+        run_cmd("cmake --build llama.cpp/build --config Release -j$(nproc) --target llama-server")
+        if os.path.exists("llama.cpp/build/bin/llama-server"):
+            shutil.copy("llama.cpp/build/bin/llama-server", "./llama-server")
+            os.chmod("./llama-server", 0o755)
+            llama_bin = "./llama-server"
+
+    if not llama_bin:
+        print("[!] Falha crítica: llama-server não pôde ser encontrado!")
+        sys.exit(1)
+
+    print(f"[4/5] Inicializando {llama_bin} com Dual T4 (split: {args.split})...")
     server_cmd = [
         llama_bin,
         "-m", MODEL_FILE,

@@ -6,6 +6,8 @@ export const USER_MMPROJ_URL = 'https://huggingface.co/unsloth/gemma-4-E4B-it-GG
 export const MODEL_FILENAME = 'gemma-4-E4B-it-UD-Q4_K_XL.gguf';
 export const MMPROJ_FILENAME = 'mmproj-F16.gguf';
 
+export const USER_GITHUB_REPO = 'https://github.com/peralisa92-eng/Tcrat.git';
+
 export function getJupyterNotebookContent(
   modelUrl: string = USER_MODEL_URL,
   mmprojUrl: string = USER_MMPROJ_URL,
@@ -20,16 +22,16 @@ export function getJupyterNotebookContent(
         cell_type: 'markdown',
         metadata: {},
         source: [
-          '# 🚀 GGUF Vision Studio - Dual T4 GPU (Kaggle) + Cloudflare Tunnel\n',
-          'Este notebook roda modelos **GGUF Multimodais (Visão)** com projetor `mmproj-F16.gguf` no **Kaggle** com **2x NVIDIA T4 (32GB VRAM total)** dividido via `--tensor-split 1,1` e expõe uma API pública segura via **Cloudflare Tunnel** compatível com KoboldCPP / OpenAI / SillyTavern e a interface Web GGUF Vision Studio.\n',
-          '\n',
-          '### ⚙️ Configurações Ativas:\n',
-          `- **Modelo Base:** \`${modelName}\`\n`,
-          `- **Projetor Visão:** \`${mmprojName}\`\n`,
-          `- **Tensor Split (Dual T4):** \`${tensorSplit}\` (50% GPU 0 / 50% GPU 1)\n`,
-          `- **Contexto (n_ctx):** \`${nCtx}\` tokens\n`,
-          `- **GPU Offload:** \`-ngl 99\` (100% das camadas aceleradas nas GPUs)\n`,
-          '\n',
+          '# 🚀 GGUF Vision Studio - Dual T4 GPU (Kaggle) + Cloudflare Tunnel\\n',
+          'Este notebook roda modelos **GGUF Multimodais (Visão)** com projetor `mmproj-F16.gguf` no **Kaggle** com **2x NVIDIA T4 (32GB VRAM total)** dividido via `--tensor-split 1,1` e expõe uma API pública segura via **Cloudflare Tunnel** compatível com KoboldCPP / OpenAI / SillyTavern e a interface Web GGUF Vision Studio.\\n',
+          '\\n',
+          '### ⚙️ Configurações Ativas:\\n',
+          `- **Modelo Base:** \`${modelName}\`\\n`,
+          `- **Projetor Visão:** \`${mmprojName}\`\\n`,
+          `- **Tensor Split (Dual T4):** \`${tensorSplit}\` (50% GPU 0 / 50% GPU 1)\\n`,
+          `- **Contexto (n_ctx):** \`${nCtx}\` tokens\\n`,
+          '- **GPU Offload:** `-ngl 99` (100% das camadas aceleradas nas GPUs)\\n',
+          '\\n',
           '> **Atenção:** No menu superior do Kaggle, certifique-se de configurar **Accelerator: GPU T4 x2** e **Internet: ON**!'
         ]
       },
@@ -39,13 +41,13 @@ export function getJupyterNotebookContent(
         metadata: {},
         outputs: [],
         source: [
-          '# 1. Verificar GPUs T4 disponíveis\n',
-          '!nvidia-smi\n',
-          '\n',
-          'import torch\n',
-          'print(f"CUDA disponível: {torch.cuda.is_available()}")\n',
-          'print(f"Total GPUs: {torch.cuda.device_count()}")\n',
-          'for i in range(torch.cuda.device_count()):\n',
+          '# 1. Verificar GPUs T4 disponíveis e CUDA\\n',
+          '!nvidia-smi\\n',
+          '\\n',
+          'import torch\\n',
+          'print(f"CUDA disponível: {torch.cuda.is_available()}")\\n',
+          'print(f"Total GPUs: {torch.cuda.device_count()}")\\n',
+          'for i in range(torch.cuda.device_count()):\\n',
           '    print(f"GPU {i}: {torch.cuda.get_device_name(i)} - {torch.cuda.get_device_properties(i).total_memory / 1e9:.2f} GB")'
         ]
       },
@@ -55,16 +57,16 @@ export function getJupyterNotebookContent(
         metadata: {},
         outputs: [],
         source: [
-          '# 2. Instalar binário pré-compilado de alta performance do llama.cpp com suporte CUDA e binário Cloudflared\n',
-          'import os, urllib.request, subprocess, time\n',
-          '\n',
-          'print("⏳ Baixando Cloudflared Tunnel...")\n',
-          '!wget -q -nc https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O cloudflared\n',
-          '!chmod +x cloudflared\n',
-          '!./cloudflared --version\n',
-          '\n',
-          'print("⏳ Instalando utilitários e dependências...")\n',
-          '!apt-get update -qq && apt-get install -y -qq aria2 psmisc libgomp1\n',
+          '# 2. Instalar Cloudflared Tunnel e utilitários de alta velocidade\\n',
+          'import os, subprocess\\n',
+          '\\n',
+          'print("⏳ Baixando Cloudflared Tunnel...")\\n',
+          '!wget -q -nc https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O cloudflared\\n',
+          '!chmod +x cloudflared\\n',
+          '!./cloudflared --version\\n',
+          '\\n',
+          'print("⏳ Instalando utilitários e dependências...")\\n',
+          '!apt-get update -qq && apt-get install -y -qq aria2 psmisc libgomp1 cmake build-essential\\n',
           '!pip install -q huggingface_hub requests'
         ]
       },
@@ -74,23 +76,76 @@ export function getJupyterNotebookContent(
         metadata: {},
         outputs: [],
         source: [
-          '# 3. Baixar ou compilar llama-server com suporte a CUDA (T4 compute capability 7.5)\n',
-          'import os\n',
-          'if not os.path.exists("llama-server") and not os.path.exists("llama.cpp/build/bin/llama-server"):\n',
-          '    print("⏳ Obtendo release otimizada do llama.cpp para CUDA...")\n',
-          '    # Tenta baixar release oficial ou compilar rapidamente\n',
-          '    !wget -q -nc https://github.com/ggerganov/llama.cpp/releases/download/b4770/llama-b4770-bin-ubuntu-x64.zip -O llama-bin.zip || true\n',
-          '    if os.path.exists("llama-bin.zip") and os.path.getsize("llama-bin.zip") > 1000000:\n',
-          '        !unzip -q -o llama-bin.zip -d llama_bin && cp llama_bin/llama-server ./llama-server && chmod +x ./llama-server\n',
-          '    else:\n',
-          '        print("Compilando llama.cpp com CUDA (sm_75 para Dual T4)...")\n',
-          '        !git clone --depth 1 https://github.com/ggerganov/llama.cpp.git\n',
-          '        !cmake -B llama.cpp/build -S llama.cpp -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="75"\n',
-          '        !cmake --build llama.cpp/build --config Release -j$(nproc) --target llama-server\n',
-          '        !cp llama.cpp/build/bin/llama-server ./llama-server\n',
-          '\n',
-          '!chmod +x ./llama-server\n',
-          'print("✅ llama-server pronto!")'
+          '# 3. Instalar llama-server com aceleração CUDA garantida\\n',
+          'import os, shutil, subprocess, urllib.request, json\\n',
+          '\\n',
+          'print("⏳ Instalando llama-server oficial pré-compilado com suporte a CUDA...")\\n',
+          '# Método 1: Script oficial de instalação do ggml-org que detecta CUDA automaticamente\\n',
+          '!curl -sSfL https://raw.githubusercontent.com/ggml-org/llama.cpp/master/scripts/install.sh | bash\\n',
+          '\\n',
+          '# Copiar o binário para ./llama-server a partir dos caminhos padrão\\n',
+          'candidates = [\\n',
+          '    shutil.which("llama-server"),\\n',
+          '    os.path.expanduser("~/.local/bin/llama-server"),\\n',
+          '    "/usr/local/bin/llama-server",\\n',
+          '    "/usr/bin/llama-server"\\n',
+          ']\\n',
+          'for c in candidates:\\n',
+          '    if c and os.path.exists(c):\\n',
+          '        shutil.copy(c, "./llama-server")\\n',
+          '        os.chmod("./llama-server", 0o755)\\n',
+          '        print(f"✅ llama-server configurado com sucesso a partir de: {c}")\\n',
+          '        break\\n',
+          '\\n',
+          '# Método 2: Se ainda não tiver ./llama-server, buscar via GitHub Releases API do ggml-org\\n',
+          'if not os.path.exists("./llama-server"):\\n',
+          '    print("⏳ Buscando release recente do ggml-org/llama.cpp...")\\n',
+          '    try:\\n',
+          '        req = urllib.request.Request("https://api.github.com/repos/ggml-org/llama.cpp/releases/latest", headers={"User-Agent": "Mozilla/5.0"})\\n',
+          '        with urllib.request.urlopen(req, timeout=12) as resp:\\n',
+          '            rel = json.loads(resp.read().decode())\\n',
+          '            for asset in rel.get("assets", []):\\n',
+          '                name = asset.get("name", "").lower()\\n',
+          '                if "ubuntu" in name and ("tar.gz" in name or "zip" in name) and not "arm" in name:\\n',
+          '                    url = asset.get("browser_download_url")\\n',
+          '                    target_file = asset.get("name")\\n',
+          '                    print(f"📥 Baixando asset: {target_file} ...")\\n',
+          '                    subprocess.run(f"aria2c -x 8 -s 8 -k 1M -c \'{url}\' -o \'{target_file}\'", shell=True)\\n',
+          '                    if target_file.endswith(".tar.gz") or target_file.endswith(".tgz"):\\n',
+          '                        subprocess.run(f"tar -xzf \'{target_file}\'", shell=True)\\n',
+          '                    elif target_file.endswith(".zip"):\\n',
+          '                        subprocess.run(f"unzip -q -o \'{target_file}\'", shell=True)\\n',
+          '                    break\\n',
+          '    except Exception as e:\\n',
+          '        print("Aviso ao buscar releases:", e)\\n',
+          '\\n',
+          '# Localizar recursivamente se foi extraído em subpasta\\n',
+          'if not os.path.exists("./llama-server"):\\n',
+          '    for root, _, files in os.walk("."):\\n',
+          '        if "llama-server" in files:\\n',
+          '            found = os.path.join(root, "llama-server")\\n',
+          '            if os.path.isfile(found):\\n',
+          '                shutil.copy(found, "./llama-server")\\n',
+          '                os.chmod("./llama-server", 0o755)\\n',
+          '                print(f"✅ llama-server encontrado em: {found}")\\n',
+          '                break\\n',
+          '\\n',
+          '# Método 3: Fallback de compilação direta com CMake CUDA sm_75\\n',
+          'if not os.path.exists("./llama-server"):\\n',
+          '    print("🔨 Compilando llama-server diretamente com CUDA (sm_75 para Dual T4)...")\\n',
+          '    !git clone --depth 1 https://github.com/ggml-org/llama.cpp.git\\n',
+          '    !cmake -B llama.cpp/build -S llama.cpp -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="75" -DCMAKE_BUILD_TYPE=Release\\n',
+          '    !cmake --build llama.cpp/build --config Release -j$(nproc) --target llama-server\\n',
+          '    !cp llama.cpp/build/bin/llama-server ./llama-server\\n',
+          '    !chmod +x ./llama-server\\n',
+          '\\n',
+          '# Validação final\\n',
+          'if os.path.exists("./llama-server"):\\n',
+          '    !chmod +x ./llama-server\\n',
+          '    !./llama-server --version || true\\n',
+          '    print("🎉 SUCESSO: ./llama-server está pronto e pronto para execução!")\\n',
+          'else:\\n',
+          '    raise FileNotFoundError("Erro: Não foi possível obter o binário llama-server. Verifique a saída acima.")'
         ]
       },
       {
@@ -99,27 +154,27 @@ export function getJupyterNotebookContent(
         metadata: {},
         outputs: [],
         source: [
-          '# 4. Baixar modelo GGUF e projetor multimodal (mmproj-F16.gguf) com alta velocidade (aria2c)\n',
-          'import os\n',
-          'os.makedirs("models", exist_ok=True)\n',
-          '\n',
-          `MODEL_URL = "${modelUrl}"\n`,
-          `MMPROJ_URL = "${mmprojUrl}"\n`,
-          `MODEL_PATH = "models/${modelName}"\n`,
-          `MMPROJ_PATH = "models/${mmprojName}"\n`,
-          '\n',
-          'if not os.path.exists(MODEL_PATH):\n',
-          '    print(f"📥 Baixando modelo principal: {MODEL_PATH} ...")\n',
-          '    !aria2c -x 16 -s 16 -k 1M -c "{MODEL_URL}" -d models -o "{MODEL_PATH.split(\'/\')[-1]}"\n',
-          'else:\n',
-          '    print(f"✅ Modelo já existente: {MODEL_PATH}")\n',
-          '\n',
-          'if not os.path.exists(MMPROJ_PATH):\n',
-          '    print(f"📥 Baixando projetor multimodal mmproj: {MMPROJ_PATH} ...")\n',
-          '    !aria2c -x 16 -s 16 -k 1M -c "{MMPROJ_URL}" -d models -o "{MMPROJ_PATH.split(\'/\')[-1]}"\n',
-          'else:\n',
-          '    print(f"✅ mmproj já existente: {MMPROJ_PATH}")\n',
-          '\n',
+          '# 4. Baixar modelo GGUF e projetor multimodal (mmproj-F16.gguf) com alta velocidade (aria2c)\\n',
+          'import os\\n',
+          'os.makedirs("models", exist_ok=True)\\n',
+          '\\n',
+          `MODEL_URL = "${modelUrl}"\\n`,
+          `MMPROJ_URL = "${mmprojUrl}"\\n`,
+          `MODEL_PATH = "models/${modelName}"\\n`,
+          `MMPROJ_PATH = "models/${mmprojName}"\\n`,
+          '\\n',
+          'if not os.path.exists(MODEL_PATH):\\n',
+          '    print(f"📥 Baixando modelo principal: {MODEL_PATH} ...")\\n',
+          '    !aria2c -x 16 -s 16 -k 1M -c "{MODEL_URL}" -d models -o "{MODEL_PATH.split(\'/\')[-1]}"\\n',
+          'else:\\n',
+          '    print(f"✅ Modelo já existente: {MODEL_PATH}")\\n',
+          '\\n',
+          'if not os.path.exists(MMPROJ_PATH):\\n',
+          '    print(f"📥 Baixando projetor multimodal mmproj: {MMPROJ_PATH} ...")\\n',
+          '    !aria2c -x 16 -s 16 -k 1M -c "{MMPROJ_URL}" -d models -o "{MMPROJ_PATH.split(\'/\')[-1]}"\\n',
+          'else:\\n',
+          '    print(f"✅ mmproj já existente: {MMPROJ_PATH}")\\n',
+          '\\n',
           '!ls -lh models/'
         ]
       },
@@ -129,71 +184,83 @@ export function getJupyterNotebookContent(
         metadata: {},
         outputs: [],
         source: [
-          '# 5. Iniciar Servidor llama.cpp com Dual T4 Split + Cloudflare Tunnel\n',
-          'import subprocess, time, re, sys, os\n',
-          '\n',
-          '# Matar processos anteriores se houver\n',
-          '!fuser -k 8080/tcp 2>/dev/null || true\n',
-          '!killall cloudflared 2>/dev/null || true\n',
-          '\n',
-          '# Comando para rodar o llama-server com divisão nas duas GPUs T4 (CUDA 0 e 1)\n',
-          'server_cmd = [\n',
-          '    "./llama-server",\n',
-          '    "-m", f"models/{MODEL_PATH.split(\'/\')[-1]}",\n',
-          '    "--mmproj", f"models/{MMPROJ_PATH.split(\'/\')[-1]}",\n',
-          '    "-ngl", "99",               # Offload total para as GPUs\n',
-          '    "--split-mode", "row",       # Divisão de camadas por linha/tensor\n',
-          `    "--tensor-split", "${tensorSplit}",     # Balanceamento 50/50 entre GPU 0 e GPU 1\n`,
-          `    "-c", "${nCtx}",             # Tamanho da janela de contexto\n`,
-          '    "-fa",                       # Flash Attention ativada\n',
-          '    "--host", "0.0.0.0",\n',
-          '    "--port", "8080",\n',
-          '    "--parallel", "1",\n',
-          '    "-np", "1"\n',
-          ']\n',
-          '\n',
-          'print("🚀 Iniciando llama-server em segundo plano...")\n',
-          'llama_proc = subprocess.Popen(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\n',
-          '\n',
-          '# Aguardar servidor inicializar\n',
-          'time.sleep(5)\n',
-          '\n',
-          'print("🌐 Iniciando Cloudflare Tunnel...")\n',
-          'tunnel_proc = subprocess.Popen(["./cloudflared", "tunnel", "--url", "http://127.0.0.1:8080"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\n',
-          '\n',
-          'cloudflare_url = None\n',
-          'start_time = time.time()\n',
-          'while time.time() - start_time < 35:\n',
-          '    line = tunnel_proc.stdout.readline()\n',
-          '    if line:\n',
-          '        match = re.search(r"https://[a-zA-Z0-9-]+\\.trycloudflare\\.com", line)\n',
-          '        if match:\n',
-          '            cloudflare_url = match.group(0)\n',
-          '            break\n',
-          '    time.sleep(0.1)\n',
-          '\n',
-          'if cloudflare_url:\n',
-          '    print("\\n" + "="*70)\n',
-          '    print(f"🎉 SEU TÚNEL CLOUDFLARE ESTÁ ONLINE!")\n',
-          '    print(f"🔗 URL Pública da API: {cloudflare_url}")\n',
-          '    print(f"🔗 Endpoint OpenAI:    {cloudflare_url}/v1/chat/completions")\n',
-          '    print(f"🔗 Endpoint Kobold:    {cloudflare_url}/completion")\n',
-          '    print(f"🔗 Endpoint Modelos:   {cloudflare_url}/v1/models")\n',
-          '    print("="*70 + "\\n")\n',
-          '    print("Copie a URL acima e cole na interface web GGUF Vision Studio ou no SillyTavern!")\n',
-          'else:\n',
-          '    print("⚠️ Não foi possível capturar a URL do Cloudflare automaticamente. Verifique os logs abaixo.")\n',
-          '\n',
-          '# Manter o notebook executando e exibindo logs\n',
-          'try:\n',
-          '    while True:\n',
-          '        out = llama_proc.stdout.readline()\n',
-          '        if out:\n',
-          '            print(out.strip())\n',
-          '        time.sleep(0.1)\n',
-          'except KeyboardInterrupt:\n',
-          '    print("\\n🛑 Encerrando servidor e túnel...")\n',
-          '    llama_proc.terminate()\n',
+          '# 5. Iniciar Servidor llama.cpp com Dual T4 Split + Cloudflare Tunnel\\n',
+          'import subprocess, time, re, sys, os, shutil\\n',
+          '\\n',
+          '# Matar processos anteriores se houver\\n',
+          '!fuser -k 8080/tcp 2>/dev/null || true\\n',
+          '!killall cloudflared 2>/dev/null || true\\n',
+          '\\n',
+          '# Encontrar binário do llama-server garantido\\n',
+          'server_bin = None\\n',
+          'for candidate in ["./llama-server", shutil.which("llama-server"), os.path.expanduser("~/.local/bin/llama-server"), "/usr/local/bin/llama-server"]:\\n',
+          '    if candidate and os.path.exists(candidate) and os.access(candidate, os.X_OK):\\n',
+          '        server_bin = candidate\\n',
+          '        break\\n',
+          '\\n',
+          'if not server_bin:\\n',
+          '    raise FileNotFoundError("Binário llama-server não foi encontrado! Por favor, execute a Célula 3 primeiro.")\\n',
+          '\\n',
+          'print(f"🚀 Usando binário do llama-server: {server_bin}")\\n',
+          '\\n',
+          '# Comando para rodar o llama-server com divisão nas duas GPUs T4 (CUDA 0 e 1)\\n',
+          'server_cmd = [\\n',
+          '    server_bin,\\n',
+          '    "-m", f"models/{MODEL_PATH.split(\'/\')[-1]}",\\n',
+          '    "--mmproj", f"models/{MMPROJ_PATH.split(\'/\')[-1]}",\\n',
+          '    "-ngl", "99",               # Offload total para as GPUs\\n',
+          '    "--split-mode", "row",       # Divisão de camadas por linha/tensor\\n',
+          `    "--tensor-split", "${tensorSplit}",     # Balanceamento 50/50 entre GPU 0 e GPU 1\\n`,
+          `    "-c", "${nCtx}",             # Tamanho da janela de contexto\\n`,
+          '    "-fa",                       # Flash Attention ativada\\n',
+          '    "--host", "0.0.0.0",\\n',
+          '    "--port", "8080",\\n',
+          '    "--parallel", "1",\\n',
+          '    "-np", "1"\\n',
+          ']\\n',
+          '\\n',
+          'print("🚀 Iniciando llama-server em segundo plano...")\\n',
+          'llama_proc = subprocess.Popen(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\\n',
+          '\\n',
+          '# Aguardar servidor inicializar\\n',
+          'time.sleep(6)\\n',
+          '\\n',
+          'print("🌐 Iniciando Cloudflare Tunnel...")\\n',
+          'tunnel_proc = subprocess.Popen(["./cloudflared", "tunnel", "--url", "http://127.0.0.1:8080"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\\n',
+          '\\n',
+          'cloudflare_url = None\\n',
+          'start_time = time.time()\\n',
+          'while time.time() - start_time < 35:\\n',
+          '    line = tunnel_proc.stdout.readline()\\n',
+          '    if line:\\n',
+          '        match = re.search(r"https://[a-zA-Z0-9-]+\\.trycloudflare\\.com", line)\\n',
+          '        if match:\\n',
+          '            cloudflare_url = match.group(0)\\n',
+          '            break\\n',
+          '    time.sleep(0.1)\\n',
+          '\\n',
+          'if cloudflare_url:\\n',
+          '    print("\\n" + "="*70)\\n',
+          '    print(f"🎉 SEU TÚNEL CLOUDFLARE ESTÁ ONLINE!")\\n',
+          '    print(f"🔗 URL Pública da API: {cloudflare_url}")\\n',
+          '    print(f"🔗 Endpoint OpenAI:    {cloudflare_url}/v1/chat/completions")\\n',
+          '    print(f"🔗 Endpoint Kobold:    {cloudflare_url}/completion")\\n',
+          '    print(f"🔗 Endpoint Modelos:   {cloudflare_url}/v1/models")\\n',
+          '    print("="*70 + "\\n")\\n',
+          '    print("Copie a URL acima e cole na interface web GGUF Vision Studio ou no SillyTavern!")\\n',
+          'else:\\n',
+          '    print("⚠️ Não foi possível capturar a URL do Cloudflare automaticamente. Verifique os logs abaixo.")\\n',
+          '\\n',
+          '# Manter o notebook executando e exibindo logs\\n',
+          'try:\\n',
+          '    while True:\\n',
+          '        out = llama_proc.stdout.readline()\\n',
+          '        if out:\\n',
+          '            print(out.strip())\\n',
+          '        time.sleep(0.1)\\n',
+          'except KeyboardInterrupt:\\n',
+          '    print("\\n🛑 Encerrando servidor e túnel...")\\n',
+          '    llama_proc.terminate()\\n',
           '    tunnel_proc.terminate()'
         ]
       },
@@ -466,18 +533,41 @@ def main():
     subprocess.run(f"fuser -k {args.port}/tcp 2>/dev/null", shell=True)
     subprocess.run("killall cloudflared 2>/dev/null", shell=True)
 
-    llama_bin = "./llama-server"
-    if not os.path.exists(llama_bin):
-        if os.path.exists("llama.cpp/build/bin/llama-server"):
-            llama_bin = "llama.cpp/build/bin/llama-server"
-        else:
-            print("[!] Binário llama-server não encontrado localmente! Tentando compilar...")
-            run_cmd("git clone --depth 1 https://github.com/ggerganov/llama.cpp.git")
-            run_cmd("cmake -B llama.cpp/build -S llama.cpp -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES='75'")
-            run_cmd("cmake --build llama.cpp/build --config Release -j$(nproc) --target llama-server")
-            llama_bin = "llama.cpp/build/bin/llama-server"
+    def find_llama_server():
+        candidates = [
+            "./llama-server",
+            shutil.which("llama-server"),
+            os.path.expanduser("~/.local/bin/llama-server"),
+            "/usr/local/bin/llama-server",
+            "./llama.cpp/build/bin/llama-server"
+        ]
+        for c in candidates:
+            if c and os.path.exists(c) and os.access(c, os.X_OK):
+                return c
+        return None
 
-    print(f"[4/5] Inicializando llama-server com Dual T4 (split: {args.split})...")
+    llama_bin = find_llama_server()
+    if not llama_bin:
+        print("[*] Instalando llama-server oficial pré-compilado para CUDA...")
+        run_cmd("curl -sSfL https://raw.githubusercontent.com/ggml-org/llama.cpp/master/scripts/install.sh | bash", check=False)
+        llama_bin = find_llama_server()
+
+    if not llama_bin:
+        print("[!] Compilando llama-server com CUDA (sm_75 para Dual T4)...")
+        if not os.path.exists("llama.cpp"):
+            run_cmd("git clone --depth 1 https://github.com/ggml-org/llama.cpp.git")
+        run_cmd("cmake -B llama.cpp/build -S llama.cpp -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES='75' -DCMAKE_BUILD_TYPE=Release")
+        run_cmd("cmake --build llama.cpp/build --config Release -j$(nproc) --target llama-server")
+        if os.path.exists("llama.cpp/build/bin/llama-server"):
+            shutil.copy("llama.cpp/build/bin/llama-server", "./llama-server")
+            os.chmod("./llama-server", 0o755)
+            llama_bin = "./llama-server"
+
+    if not llama_bin:
+        print("[!] Falha crítica: llama-server não pôde ser encontrado!")
+        sys.exit(1)
+
+    print(f"[4/5] Inicializando {llama_bin} com Dual T4 (split: {args.split})...")
     server_cmd = [
         llama_bin,
         "-m", MODEL_FILE,
@@ -558,15 +648,26 @@ mkdir -p models
 aria2c -x 16 -s 16 -k 1M -c "${modelUrl}" -d models -o "${modelName}"
 aria2c -x 16 -s 16 -k 1M -c "${mmprojUrl}" -d models -o "${mmprojName}"
 
-echo "=== [4/4] Compilando llama-server para arquitetura CUDA sm_75 (T4) ==="
+echo "=== [4/4] Instalando llama-server oficial pré-compilado para CUDA ==="
 if [ ! -f "./llama-server" ]; then
-    if [ ! -d "llama.cpp" ]; then
-        git clone --depth 1 https://github.com/ggerganov/llama.cpp.git
+    curl -sSfL https://raw.githubusercontent.com/ggml-org/llama.cpp/master/scripts/install.sh | bash || true
+    if [ -f "$HOME/.local/bin/llama-server" ]; then
+        cp "$HOME/.local/bin/llama-server" ./llama-server
+    elif [ -f "/usr/local/bin/llama-server" ]; then
+        cp "/usr/local/bin/llama-server" ./llama-server
     fi
-    cmake -B llama.cpp/build -S llama.cpp -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="75"
+fi
+
+if [ ! -f "./llama-server" ]; then
+    echo "Compilando llama-server para CUDA sm_75..."
+    if [ ! -d "llama.cpp" ]; then
+        git clone --depth 1 https://github.com/ggml-org/llama.cpp.git
+    fi
+    cmake -B llama.cpp/build -S llama.cpp -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="75" -DCMAKE_BUILD_TYPE=Release
     cmake --build llama.cpp/build --config Release -j$(nproc) --target llama-server
     cp llama.cpp/build/bin/llama-server ./llama-server
 fi
+chmod +x ./llama-server
 
 echo "=== ✅ Tudo pronto! Agora execute: python3 launcher.py ==="
 `;
