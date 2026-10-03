@@ -1,0 +1,6 @@
+{
+  "name": "GGUF Vision Studio",
+  "description": "Interface web e suíte de implantação para modelos GGUF com visão (mmproj-F16.gguf), suporte a 2x GPU T4 no Kaggle, túnel Cloudflare e API compatível com KoboldCPP e OpenAI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

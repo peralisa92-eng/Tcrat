@@ -1,0 +1,15 @@
+*.gguf
+models/
+llama-server
+cloudflared
+llama.cpp/
+llama_bin/
+*.zip
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+.env
+*.log
+*.tmp
+test.png
